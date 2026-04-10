@@ -1,0 +1,98 @@
+@{
+    var items = Model.items || [];
+    var total = Model.total || 0;
+    var msg = Model.msg || "";
+    Model.title = "Checkout";
+}
+
+@section nav {
+    Html.partial("_nav", { authenticated: Model.authenticated })
+}
+
+<div class="container">
+    <h1 style="width:97.5%; margin:5px auto; text-align:center;">Checkout</h1>
+
+    <div class="col" text-align:center; >
+        <div>
+            @if(msg && msg !== ""){
+                <div class="auth-error">@msg</div>
+            }
+
+            <form method="post" action="/confirm">
+                <div class="fld">
+                    <label class="lbl">Full Name</label>
+                    <input type="text" name="name" class="ctrl" required />
+                </div>
+
+                <div class="fld">
+                    <label class="lbl">Phone Number</label>
+                    <input type="text" name="phone" class="ctrl" required />
+                </div>
+
+                <div class="fld">
+                    <label class="lbl">Delivery Address</label>
+                    <textarea name="address" class="ctrl" rows="4" required style="resize:vertical;"></textarea>
+                </div>
+
+                <div class="fld" style="margin-top:1.4rem;">
+                    <button type="submit" class="btn primary">Confirm Order</button>
+                </div>
+            </form>
+            
+        </div>
+    </div>
+    <div>
+            <div style="
+                position:sticky;
+                top:90px;
+                padding:1.1rem 1.25rem;
+                border-radius:18px;
+                background:#0f172a;
+                color:#e5e7eb;
+                box-shadow:0 18px 40px rgba(15,23,42,0.7);
+            ">
+                <h2 style="font-size:1rem;margin-bottom:0.75rem;">Order Summary</h2>
+
+                <div style="
+                    max-height:220px;
+                    overflow:auto;
+                    margin-bottom:0.7rem;
+                    font-size:0.85rem;
+                    border-radius:12px;
+                    background:rgba(15,23,42,0.7);
+                    padding:0.5rem 0.6rem;
+                ">
+                    @if(items.length === 0){
+                        <p style="color:#9ca3af;">No items in your cart.</p>
+                    }
+
+                    @for(var i = 0; i < items.length; i++){
+                        var it = items[i];
+                        var lineTotal = (it.price || 0) * (it.qty || 0);
+                        <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
+                            <span>@it.name x @it.qty</span>
+                            <span>৳ @lineTotal</span>
+                        </div>
+                    }
+                </div>
+
+                <div style="display:flex;justify-content:space-between;font-weight:600;">
+                    <span>Total</span>
+                    <span>৳ @total</span>
+                </div>
+            </div>
+        </div>
+</div>
+
+<style>
+    .auth-error {
+        margin-bottom: 0.9rem;
+        padding: 0.6rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.88rem;
+        font-weight: 500;
+        color: #7f1d1d;
+        background: #fee2e2;
+        border: 1px solid #fecaca;
+    }
+</style>

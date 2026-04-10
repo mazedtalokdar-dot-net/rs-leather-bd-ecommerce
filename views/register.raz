@@ -1,0 +1,131 @@
+@{
+    
+    Model.authenticated = Model.authenticated || false;
+    Model.msg = Model.msg || "";
+}
+
+@section nav {
+    Html.partial("_nav", { authenticated: Model.authenticated })
+}
+
+<div class="form-container">
+    <h1>Create Account</h1>
+
+    @if(Model.msg != ""){
+        <div class="auth-error">@Model.msg</div>
+    }
+
+    <div id="reg-error" class="auth-error" style="display:none;"></div>
+
+    <form id="register-form" method="post" action="/register">
+        <div class="fld">
+            <label class="lbl">Full Name</label>
+            <input type="text" name="name" class="ctrl" required />
+        </div>
+
+        <div class="fld">
+            <label class="lbl">Email</label>
+            <input type="email" name="email" class="ctrl" required />
+        </div>
+
+        <div class="fld">
+            <label class="lbl">Username</label>
+            <input type="text" name="username" class="ctrl" required />
+        </div>
+
+        <div class="fld">
+            <label class="lbl">Password</label>
+            <input type="password" name="password" id="reg-pass" class="ctrl" required />
+        </div>
+
+        <div class="fld">
+            <label class="lbl">Confirm Password</label>
+            <input type="password" id="reg-pass2" class="ctrl" required />
+        </div>
+
+        <!-- role না পাঠালে backend নিজে থেকেই "user" সেট করবে -->
+        <input type="hidden" name="role" value="user" />
+
+        <div class="fld" style="margin-top:1.2rem;">
+            <button type="submit" class="btn primary">Create Account</button>
+        </div>
+    </form>
+
+    <div class="auth-meta">
+        <span class="auth-meta-text">Already have an account?</span>
+        <a href="/login" class="auth-meta-link">Login here</a>
+    </div>
+</div>
+
+<style>
+    .auth-error {
+        margin-bottom: 0.9rem;
+        padding: 0.6rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.88rem;
+        font-weight: 500;
+        color: #7f1d1d;
+        background: #fee2e2;
+        border: 1px solid #fecaca;
+    }
+
+    .auth-meta {
+        margin-top: 1.4rem;
+        padding-top: 0.85rem;
+        border-top: 1px dashed rgba(148, 163, 184, 0.7);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.6rem;
+        font-size: 0.9rem;
+    }
+
+    .auth-meta-text {
+        color: #4b5563;
+    }
+
+    .auth-meta-link {
+        text-decoration: none;
+        font-weight: 500;
+        padding: 0.35rem 0.9rem;
+        border-radius: 999px;
+        border: 1px solid rgba(212, 163, 115, 0.9);
+        background: rgba(248, 250, 252, 0.96);
+        color: #2c1810;
+        transition: background-color 160ms ease-out, color 160ms ease-out,
+                    border-color 160ms ease-out, transform 120ms ease-out,
+                    box-shadow 160ms ease-out;
+    }
+
+    .auth-meta-link:hover {
+        background: linear-gradient(90deg, rgba(212, 163, 115, 0.95), #2c1810);
+        color: #fefce8;
+        border-color: rgba(212, 163, 115, 0.95);
+        transform: translateY(-1px);
+        box-shadow: 0 14px 32px rgba(15, 23, 42, 0.4);
+    }
+</style>
+
+@section Scripts {
+    <script>
+        (function () {
+            var form = document.getElementById('register-form');
+            var pass = document.getElementById('reg-pass');
+            var pass2 = document.getElementById('reg-pass2');
+            var err = document.getElementById('reg-error');
+
+            if (!form || !pass || !pass2 || !err) return;
+
+            form.addEventListener('submit', function (e) {
+                if (pass.value !== pass2.value) {
+                    e.preventDefault();
+                    err.textContent = "Password and Confirm Password do not match.";
+                    err.style.display = "block";
+                    pass2.focus();
+                } else {
+                    err.style.display = "none";
+                }
+            });
+        })();
+    </script>
+}

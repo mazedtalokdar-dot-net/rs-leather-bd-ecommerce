@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>@(Model.title || "Rs Leather Bd")</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="stylesheet" href="/Styles/style.css" />
+    <link rel="stylesheet" href="/Styles/bootstrap-icons.css" />
+
+    @Html.section("Styles")
+</head>
+<body>
+    @Html.section("nav")
+
+    <div class="main">
+        @Html.body()
+    </div>
+
+    <!-- Floating Cart -->
+    <a href="/cart" id="floating-cart" style="
+        position:fixed;
+        right:18px;
+        bottom:18px;
+        width:58px;
+        height:58px;
+        border-radius:999px;
+        background:linear-gradient(135deg,#2c1810,#d4a373);
+        color:#fff;
+        text-decoration:none;
+        display:none;
+        align-items:center;
+        justify-content:center;
+        box-shadow:0 14px 35px rgba(0,0,0,0.25);
+        z-index:9999;
+    ">
+        <i class="bi bi-cart3" style="font-size:1.25rem;"></i>
+        <span id="floating-cart-count" style="
+            position:absolute;
+            top:-5px;
+            right:-5px;
+            min-width:22px;
+            height:22px;
+            border-radius:999px;
+            background:#ef4444;
+            color:#fff;
+            font-size:0.75rem;
+            font-weight:700;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:0 6px;
+        ">0</span>
+    </a>
+
+    <!-- Center Notification -->
+    <div id="middle-alert" style="
+        position:fixed;
+        left:50%;
+        top:50%;
+        transform:translate(-50%, -50%);
+        background:rgba(17,24,39,0.96);
+        color:#fff;
+        padding:14px 24px;
+        border-radius:999px;
+        font-size:0.95rem;
+        font-weight:600;
+        box-shadow:0 18px 45px rgba(0,0,0,0.28);
+        z-index:10000;
+        opacity:0;
+        pointer-events:none;
+        transition:opacity 0.25s ease, transform 0.25s ease;
+        white-space:nowrap;
+    "></div>
+
+    <script>
+        (function () {
+            const floatingCart = document.getElementById("floating-cart");
+            const floatingCartCount = document.getElementById("floating-cart-count");
+            const middleAlert = document.getElementById("middle-alert");
+
+            function applyCartCount(count) {
+                count = Number(count || 0);
+
+                if (!floatingCart || !floatingCartCount) return;
+
+                if (count > 0) {
+                    floatingCart.style.display = "flex";
+                    floatingCartCount.textContent = count;
+                } else {
+                    floatingCart.style.display = "none";
+                    floatingCartCount.textContent = "0";
+                }
+            }
+
+            function showMiddleAlert(message) {
+                if (!middleAlert) return;
+                middleAlert.textContent = message || "Done";
+                middleAlert.style.opacity = "1";
+                middleAlert.style.transform = "translate(-50%, -50%) scale(1)";
+                setTimeout(function () {
+                    middleAlert.style.opacity = "0";
+                    middleAlert.style.transform = "translate(-50%, -50%) scale(0.98)";
+                }, 1500);
+            }
+
+            window.updateCartCountUI = applyCartCount;
+            window.showMiddleAlert = showMiddleAlert;
+
+            fetch("/cart-count")
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    if (data && typeof data.count !== "undefined") {
+                        applyCartCount(data.count);
+                    }
+                })
+                .catch(function (err) {
+                    console.error(err);
+                });
+        })();
+    </script>
+
+    @Html.section("Scripts")
+</body>
+</html>

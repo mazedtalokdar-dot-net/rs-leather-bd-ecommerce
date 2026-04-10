@@ -1,0 +1,154 @@
+@{
+    Model.title = "Product management";
+    var products = Model.products || [];
+}
+@section nav {
+    Html.partial("_nav", { authenticated: Model.authenticated })
+}
+
+<div class="container">
+    <h1 style="width:97.5%; margin: 5px auto;text-align:center">Products</h1>
+
+    <div class="right">
+        <a href="/create-product"><i class="bi bi-plus"></i></a>
+    </div>
+
+    <table class="tbl">
+        <thead>
+            <tr>
+                <th style="width:60px;">Image</th>
+                <th>Name</th>
+                <th style="width:120px;">Price (৳)</th>
+                <th style="width:80px;">Stock</th>
+                <th style="width:110px;">Status</th>
+                <th style="width:180px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody id="product-table-body">
+        @for (var i = 0; i < products.length; i++)
+        {
+            var p = products[i];
+            <tr id="prod-row-@p._id">
+                <td style="width:60px;text-align:center;">
+                    @if(p.imageUrl && p.imageUrl !== ""){
+                        <img class="circle-image" src="@p.imageUrl" style="width:50px;height:50px;" />
+                    } else {
+                        <img class="circle-image" src="/images/placeholder.png" style="width:50px;height:50px;" />
+                    }
+                </td>
+                <td>@p.name</td>
+                <td>@((p.price || 0).toLocaleString())</td>
+                <td>@(p.stock || 0)</td>
+                <td>@(p.status || "active")</td>
+                <td>
+                    <a href="/edit-product/@p._id" class="small-btn" style="background-color:#0ea5e9;color:#0f172a;margin-right:4px;">
+                        Edit
+                    </a>
+                    <a href="/delete-product/@p._id" class="small-btn" style="background-color:#ef4444;color:#fef2f2;"
+                       onclick="return confirm('Delete this product?');">
+                        Delete
+                    </a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <!-- Socket.IO client -->
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+        (function () {
+            function showToast(message) {
+                if (!message) return;
+
+                var existing = document.querySelector('.rs-toast');
+                if (existing) existing.remove();
+
+                var toast = document.createElement('div');
+                toast.className = 'rs-toast';
+                toast.textContent = message;
+                Object.assign(toast.style, {
+                    position: 'fixed',
+                    left: '50%',
+                    bottom: '18px',
+                    transform: 'translateX(-50%)',
+                    padding: '0.6rem 1.3rem',
+                    borderRadius: '999px',
+                    background: 'rgba(17,24,39,0.96)',
+                    color: '#f9fafb',
+                    fontSize: '0.9rem',
+                    boxShadow: '0 14px 36px rgba(15,23,42,0.65)',
+                    zIndex: 9999,
+                    opacity: '0',
+                    transition: 'opacity 160ms ease-out, transform 160ms ease-out'
+                });
+                document.body.appendChild(toast);
+
+                requestAnimationFrame(function () {
+                    toast.style.opacity = '1';
+                    toast.style.transform = 'translateX(-50%) translateY(-4px)';
+                });
+
+                setTimeout(function () {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(-50%) translateY(0)';
+                    setTimeout(function () {
+                        toast.remove();
+                    }, 200);
+                }, 2600);
+            }
+
+            try {
+                var socket = io();
+                var tbody = document.getElementById('product-table-body');
+
+                // New product -> add row on top
+                socket.on('product-added', function (p) {
+                    if (!tbody || !p || !p._id) return;
+
+                    var img = p.imageUrl && p.imageUrl !== "" ? p.imageUrl : "/images/placeholder.png";
+                    var price = p.price || 0;
+                    var safeName = p.name || "New product";
+                    var status = p.status || "active";
+
+                    var tr = document.createElement('tr');
+                    tr.id = 'prod-row-' + p._id;
+                    tr.innerHTML =
+                        '<td style="width:60px;text-align:center;">' +
+                            '<img class="circle-image" src="' + img + '" style="width:50px;height:50px;" />' +
+                        '</td>' +
+                        '<td>' + safeName + '</td>' +
+                        '<td>' + price.toLocaleString() + '</td>' +
+                        '<td>0</td>' +
+                        '<td>' + status + '</td>' +
+                        '<td>' +
+                            '<a href="/edit-product/' + p._id + '" class="small-btn" ' +
+                                'style="background-color:#0ea5e9;color:#0f172a;margin-right:4px;">Edit</a>' +
+                            '<a href="/delete-product/' + p._id + '" class="small-btn" ' +
+                                'style="background-color:#ef4444;color:#fef2f2;" ' +
+                                'onclick="return confirm(\'Delete this product?\');">Delete</a>' +
+                        '</td>';
+
+                    tbody.insertAdjacentElement('afterbegin', tr);
+                    showToast('New product added: ' + safeName);
+                });
+
+                // Product deleted elsewhere
+                socket.on('product-deleted', function (data) {
+                    if (!data || !data._id) return;
+                    var row = document.getElementById('prod-row-' + data._id);
+                    if (row) {
+                        row.remove();
+                        showToast('A product has been removed.');
+                    }
+                });
+
+            } catch (err) {
+                console.error('Socket error (products):', err);
+            }
+        })();
+    </script>
+}

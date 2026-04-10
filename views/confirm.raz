@@ -1,0 +1,38 @@
+@{
+    
+    var total = Model.total || 0;
+    Model.title = "Order Confirmed";
+}
+
+@section nav {
+    Html.partial("_nav", { authenticated: Model.authenticated })
+}
+
+<div class="container" style="display:flex;justify-content:center;align-items:center;min-height:60vh;">
+    <div class="form-container" style="max-width:480px;text-align:center;">
+        <h1>Thank you!</h1>
+        <p style="margin-top:0.75rem;font-size:0.95rem;color:#4b5563;">
+            Your order has been placed successfully.
+        </p>
+
+        <div style="
+            margin:1.2rem auto 0.9rem;
+            padding:0.8rem 1rem;
+            border-radius:18px;
+            background:rgba(212,163,115,0.12);
+            border:1px solid rgba(212,163,115,0.8);
+            display:inline-block;
+            min-width:220px;
+        ">
+            <span style="display:block;font-size:0.85rem;color:#6b7280;">Order Total</span>
+            <span style="display:block;font-size:1.2rem;font-weight:600;color:#2c1810;">
+                ৳ @total
+            </span>
+        </div>
+
+        <div style="margin-top:1.2rem;display:flex;flex-direction:column;gap:0.6rem;">
+            <a href="/" class="btn" style="justify-content:center;">Continue Shopping</a>
+            <!-- ভবিষ্যতে "My Orders" পেইজ হলে এখানে লিঙ্ক দেওয়া যাবে -->
+        </div>
+    </div>
+</div>

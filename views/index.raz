@@ -1,0 +1,213 @@
+@{
+    Model.title = Model.title || "Home";
+    const categories = Model.categories || [];
+    const products = Model.products || [];
+    const q = Model.q || "";
+    const msg = Model.msg || "";
+}
+@section nav {
+    Html.partial("_nav", { authenticated: Model.authenticated })
+}
+
+<div class="container">
+    <!-- Hero / Banner -->
+    <div class="banner">
+        <div class="banner-text">
+            <h2>Premium Leather Footwear</h2>
+            <h1>Rs Leather Bd</h1>
+            <p style="color:#e5e7eb;font-size:0.9rem;margin-bottom:0.75rem;">
+                Crafted comfort for everyday luxury. Genuine leather shoes, wallets & belts – built to last.
+            </p>
+            <span class="mark">Limited time: Special discount on selected styles</span>
+        </div>
+    </div>
+
+    <!-- Layout: Sidebar + Products -->
+    <div class="col-1-3">
+        <!-- Sidebar: Categories -->
+        <div class="sidenav">
+            <span class="sidenav-header">Categories</span>
+            <ul>
+                <li>
+                    <span>
+                        <a href="javascript:void(0)" class="cat-link active" data-cat-id="all">
+                            <span>All Products</span>
+                        </a>
+                    </span>
+                </li>
+                @for (var i = 0; i < categories.length; i++) {
+                    <li>
+                        <span>
+                            <a href="javascript:void(0)" class="cat-link" data-cat-id="@categories[i]._id">
+                                <span>@categories[i].categoryname</span>
+                            </a>
+                        </span>
+                    </li>
+                }
+            </ul>
+        </div>
+
+        <!-- Products Grid -->
+        <div>
+            @if(q && q !== ""){
+                <h2 style="font-size:1rem;margin-bottom:0.4rem;">
+                    Showing results for: <span style="font-weight:600;">@q</span>
+                </h2>
+            }
+            @if(msg && msg !== ""){
+                <div style="margin-bottom:0.75rem;color:#b91c1c;font-size:0.9rem;">@msg</div>
+            }
+
+            <div id="filter-empty-msg" style="display:none;font-size:0.9rem;color:#6b7280;margin-bottom:0.75rem;">
+                 No products found in this category.
+            </div>
+            <div class="product-box" id="product-box">
+                @if(products.length === 0){
+                    <p style="font-size:0.9rem;color:#6b7280;">No products available.</p>
+                }
+                @for (var i = 0; i < products.length; i++)
+                {
+                    var p = products[i];
+                    <div class="card"
+                         data-product-id="@p._id"
+                         data-category-id="@String(p.categoryId || "none")">
+                        @if(p.imageUrl && p.imageUrl !== ""){
+                            <img src="@p.imageUrl" alt="@p.name" />
+                        } else {
+                            <img src="/images/placeholder.png" alt="@p.name" />
+                        }
+                        <div class="card-body">
+                            <h3 style="font-size:1rem;font-weight:600;margin-bottom:0.2rem;">
+                                @p.name
+                            </h3>
+                            <p class="card-text">
+                                @(p.description || "Premium leather shoe designed for everyday comfort.")
+                            </p>
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:0.4rem;">
+                                <span style="font-weight:600;font-size:0.95rem;">
+                                    ৳ @((p.price || 0).toLocaleString())
+                                </span>
+                            <button data-id="@products[i]._id" class="cart-btn">Add to cart</button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <script src="/scripts/jquery.js"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            // ===== Banner Slider =====
+            var slides = document.querySelectorAll(".banner-slide");
+            var dots = document.querySelectorAll(".banner-dot");
+            var current = 0;
+            var timer = null;
+
+            function showSlide(index) {
+                if (!slides.length) return;
+
+                if (index >= slides.length) index = 0;
+                if (index < 0) index = slides.length - 1;
+
+                current = index;
+
+                slides.forEach(function (slide, i) {
+                    if (i === index) slide.classList.add("is-active");
+                    else slide.classList.remove("is-active");
+                });
+
+                dots.forEach(function (dot, i) {
+                    if (i === index) dot.classList.add("is-active");
+                    else dot.classList.remove("is-active");
+                });
+            }
+
+            function startSlider() {
+                if (!slides.length) return;
+                timer = setInterval(function () {
+                    showSlide(current + 1);
+                }, 5000);
+            }
+
+            dots.forEach(function (dot, i) {
+                dot.addEventListener("click", function () {
+                    showSlide(i);
+                    clearInterval(timer);
+                    startSlider();
+                });
+            });
+
+            showSlide(0);
+            startSlider();
+            //--catagories filtering
+            // ===== Category Filter =====
+            $(".cat-link").click(function () {
+                var selectedCatId = $(this).data("cat-id");
+
+                $(".cat-link").removeClass("active");
+                $(this).addClass("active");
+
+                var visibleCount = 0;
+
+                $("#product-box .card").each(function () {
+                    var productCatId = String($(this).attr("data-category-id") || "none");
+
+                    if (selectedCatId === "all" || productCatId === String(selectedCatId)) {
+                        $(this).show();
+                        visibleCount++;
+                    } else {
+                        $(this).hide();
+                    }
+                });
+
+                if (visibleCount === 0) {
+                    $("#filter-empty-msg").show();
+                } else {
+                    $("#filter-empty-msg").hide();
+                }
+            });
+            // ===== Add to Cart =====
+            $(".cart-btn").click(function () {
+                var id = $(this).data("id");
+
+                $.ajax({
+                    method: "get",
+                    url: "/addcart?id=" + id,
+                    dataType: "json",
+                    success: function (r) {
+                        console.log(r);
+
+                        if (r && r.ok) {
+                            if (typeof window.updateCartCountUI === "function") {
+                                window.updateCartCountUI(r.cartCount || 0);
+                            }
+
+                            if (typeof window.showMiddleAlert === "function") {
+                                window.showMiddleAlert(r.msg || "Added to cart");
+                            }
+                        } else {
+                            if (typeof window.showMiddleAlert === "function") {
+                                window.showMiddleAlert((r && r.msg) ? r.msg : "Something went wrong");
+                            }
+                        }
+                    },
+                    error: function () {
+                        if (typeof window.showMiddleAlert === "function") {
+                            window.showMiddleAlert("Something went wrong");
+                        }
+                    }
+                });
+            });
+
+        });
+    </script>
+}
+

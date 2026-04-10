@@ -1,0 +1,55 @@
+@{
+    var msg = Model.msg || "";
+    Model.title = "Create Admin";
+}
+
+@section nav {
+    Html.partial("_nav", { authenticated: Model.authenticated })
+}
+
+<div class="form-container">
+    <h1>Create Admin</h1>
+
+    @if(msg && msg !== ""){
+        <div class="auth-error">@msg</div>
+    }
+
+    <form method="post" action="/admin/create-admin">
+        <div class="fld">
+            <label class="lbl">Full Name</label>
+            <input type="text" name="name" class="ctrl" required />
+        </div>
+
+        <div class="fld">
+            <label class="lbl">Email (will be used as login ID)</label>
+            <input type="email" name="email" class="ctrl" required />
+        </div>
+
+        <div class="fld">
+            <label class="lbl">Password</label>
+            <input type="password" name="password" class="ctrl" required />
+        </div>
+
+        <div class="fld" style="margin-top:1.2rem;">
+            <button type="submit" class="btn primary">Create Admin</button>
+        </div>
+    </form>
+
+    <div class="auth-meta">
+        <span class="auth-meta-text">Back to dashboard</span>
+        <a href="/admin" class="auth-meta-link">Admin Home</a>
+    </div>
+</div>
+
+<style>
+    .auth-error {
+        margin-bottom: 0.9rem;
+        padding: 0.6rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.88rem;
+        font-weight: 500;
+        color: #7f1d1d;
+        background: #fee2e2;
+        border: 1px solid #fecaca;
+    }
+</style>

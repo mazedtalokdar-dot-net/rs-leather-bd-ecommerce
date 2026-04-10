@@ -1,0 +1,77 @@
+@{
+    var categories = Model.categories || [];
+    Model.title = "Category Management";
+}
+
+@section nav {
+    Html.partial("_nav", { authenticated: Model.authenticated })
+}
+
+<div class="container">
+    <h1 style="width:97.5%; margin: 5px auto;text-align:center">Categories</h1>
+
+    <div class="right">
+        <a href="/create-category"><i class="bi bi-plus"></i></a>
+    </div>
+
+    <table class="tbl">
+        <thead>
+            <tr>
+                <th style="width:40%;">Category</th>
+                <th>Subcategories</th>
+                <th style="width:180px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        @if(categories.length === 0){
+            <tr>
+                <td colspan="3" style="font-size:0.9rem;color:#6b7280;padding:1rem;">
+                    No categories added yet.
+                </td>
+            </tr>
+        }
+        @for(var i = 0; i < categories.length; i++){
+            var c = categories[i];
+            <tr id="cat-row-@c._id">
+                <td>@c.categoryname</td>
+                <td>
+                    @if(c.subcategories && c.subcategories.length > 0){
+                        <div style="display:flex;flex-wrap:wrap;gap:0.35rem;">
+                            @for(var j = 0; j < c.subcategories.length; j++){
+                                var s = c.subcategories[j];
+                                <span style="
+                                    display:inline-flex;
+                                    align-items:center;
+                                    padding:0.2rem 0.6rem;
+                                    border-radius:999px;
+                                    background:rgba(212,163,115,0.15);
+                                    color:#1f2933;
+                                    font-size:0.8rem;
+                                    border:1px solid rgba(212,163,115,0.7);
+                                ">
+                                    @s.name
+                                </span>
+                            }
+                        </div>
+                    } else {
+                        <span style="font-size:0.85rem;color:#9ca3af;">No subcategories</span>
+                    }
+                </td>
+                <td>
+                    <a href="/edit-category/@c._id"
+                       class="small-btn"
+                       style="background-color:#0ea5e9;color:#0f172a;margin-right:4px;">
+                        Edit / Add Subcategory
+                    </a>
+                    <a href="/delete-category/@c._id"
+                       class="small-btn"
+                       style="background-color:#ef4444;color:#fef2f2;"
+                       onclick="return confirm('Delete this category?');">
+                        Delete
+                    </a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

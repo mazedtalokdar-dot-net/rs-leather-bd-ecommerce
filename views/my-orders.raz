@@ -1,0 +1,139 @@
+@{
+    var orders = Model.orders || [];
+    var msg = Model.msg || "";
+    Model.title = "My Orders";
+}
+
+@section nav {
+    Html.partial("_nav", { authenticated: Model.authenticated })
+}
+
+<div class="container">
+    <h1 style="width:97.5%; margin:5px auto; text-align:center;">My Orders</h1>
+
+    @if(msg && msg !== ""){
+        <div class="auth-error" style="max-width:520px;margin:1rem auto 0;">@msg</div>
+    }
+
+    @if(orders.length === 0){
+        <div style="
+            margin:1.5rem auto 0;
+            max-width:700px;
+            background:#fff;
+            border-radius:18px;
+            padding:1.2rem 1.3rem;
+            box-shadow:0 12px 28px rgba(15,23,42,0.08);
+            color:#6b7280;
+            text-align:center;
+        ">
+            You have not placed any order yet.
+        </div>
+    }
+
+    @for(var i = 0; i < orders.length; i++){
+        var o = orders[i];
+        var shipping = o.shipping || {};
+        var d = o.createdAt ? new Date(o.createdAt) : new Date();
+        var orderDate = d.toLocaleDateString();
+        var items = o.items || [];
+        var canCancel = (o.status === "pending");
+
+        <div style="
+            margin:1.2rem auto 0;
+            max-width:900px;
+            background:#fff;
+            border-radius:22px;
+            padding:1.1rem 1.25rem;
+            box-shadow:0 16px 36px rgba(15,23,42,0.08);
+            border:1px solid rgba(229,231,235,0.9);
+        ">
+            <div style="display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+                <div>
+                    <div style="font-size:0.8rem;color:#6b7280;">Order ID</div>
+                    <div style="font-weight:600;">@o._id</div>
+                </div>
+                <div>
+                    <div style="font-size:0.8rem;color:#6b7280;">Date</div>
+                    <div style="font-weight:600;">@orderDate</div>
+                </div>
+                <div>
+                    <div style="font-size:0.8rem;color:#6b7280;">Total</div>
+                    <div style="font-weight:600;">৳ @o.total</div>
+                </div>
+                <div>
+                    <div style="font-size:0.8rem;color:#6b7280;">Status</div>
+                    <div style="font-weight:600;text-transform:capitalize;">
+                        @o.status
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top:1rem;">
+                <div style="font-size:0.85rem;color:#6b7280;margin-bottom:0.25rem;">Delivery Info</div>
+                <div style="font-size:0.92rem;">
+                    @shipping.name | @shipping.phone | @shipping.address
+                </div>
+            </div>
+
+            <div style="margin-top:1rem;">
+                <div style="font-size:0.85rem;color:#6b7280;margin-bottom:0.4rem;">Items</div>
+
+                @for(var j = 0; j < items.length; j++){
+                    var it = items[j];
+                    var lineTotal = (it.price || 0) * (it.qty || 0);
+
+                    <div style="
+                        display:flex;
+                        justify-content:space-between;
+                        padding:0.45rem 0;
+                        border-top:1px solid rgba(229,231,235,0.8);
+                        font-size:0.92rem;
+                    ">
+                        <span>@it.name x @it.qty</span>
+                        <span>৳ @lineTotal</span>
+                    </div>
+                }
+            </div>
+
+            @if(canCancel){
+                <div style="margin-top:1rem;display:flex;justify-content:flex-end;">
+                    <form method="post" action="/my-orders/request-cancel/@o._id">
+                        <button type="submit"
+                                class="small-btn"
+                                style="background:#ef4444;color:#fff;padding:0.55rem 0.95rem;"
+                                onclick="return confirm('Do you want to request cancellation for this order?');">
+                            Request to Cancel
+                        </button>
+                    </form>
+                </div>
+            }
+
+            @if(o.status === "cancel_requested"){
+                <div style="
+                    margin-top:1rem;
+                    padding:0.7rem 0.9rem;
+                    border-radius:14px;
+                    background:rgba(245,158,11,0.12);
+                    color:#92400e;
+                    font-size:0.9rem;
+                    font-weight:500;
+                ">
+                    Your cancel request has been sent to admin for review.
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    .auth-error {
+        margin-bottom: 0.9rem;
+        padding: 0.6rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.88rem;
+        font-weight: 500;
+        color: #7f1d1d;
+        background: #fee2e2;
+        border: 1px solid #fecaca;
+    }
+</style>

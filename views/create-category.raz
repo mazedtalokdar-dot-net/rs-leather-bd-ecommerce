@@ -1,0 +1,127 @@
+@{
+    var edit = Model.edit === true;
+    var cat = Model.category || {};
+    var title = edit ? "Edit Category" : "Create Category";
+    var msg = Model.msg || "";
+    Model.title = title;
+
+    // সাবক্যাটাগরির জন্য একটা common array বানাচ্ছি
+    var subs = [];
+    if (edit && cat.subcategories && cat.subcategories.length > 0) {
+        subs = cat.subcategories;
+    } else {
+        subs = [ { name: "" } ];
+    }
+}
+
+@section nav {
+    Html.partial("_nav", { authenticated: Model.authenticated })
+}
+
+<div class="form-container">
+    <h1>@title</h1>
+
+    @if(msg && msg !== ""){
+        <div class="auth-error">@msg</div>
+    }
+
+    <form id="cat-form"
+          method="post"
+          action="@(edit ? ("/update-category/" + cat._id) : "/save-category")">
+
+        <div class="fld">
+            <label class="lbl">Category name</label>
+            <input type="text"
+                   name="cname"
+                   class="ctrl"
+                   required
+                   value="@(cat.categoryname || "")" />
+        </div>
+
+        <div class="between">
+            <h3 style="font-size:0.95rem;">Subcategories</h3>
+            <button type="button" class="add small-btn" id="btn-add-sub">
+                <i class="bi bi-plus"></i>
+            </button>
+        </div>
+
+        <div id="subs">
+            @for (var i = 0; i < subs.length; i++) {
+                var s = subs[i];
+                <div class="fld1 sub-row">
+                    <input type="text"
+                           name="subname"
+                           class="ctrl"
+                           placeholder="Subcategory name"
+                           value="@(s.name || "")"
+                           required />
+                    <button type="button" class="small-btn btn-remove-sub"
+                            style="background-color:#ef4444;color:#fef2f2;">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
+            }
+        </div>
+
+        <div class="fld" style="margin-top:1.4rem;">
+            <button type="submit" class="btn primary">
+                @(edit ? "Update Category" : "Save Category")
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    .auth-error {
+        margin-bottom: 0.9rem;
+        padding: 0.6rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.88rem;
+        font-weight: 500;
+        color: #7f1d1d;
+        background: #fee2e2;
+        border: 1px solid #fecaca;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        (function () {
+            var container = document.getElementById('subs');
+            var addBtn = document.getElementById('btn-add-sub');
+
+            if (!container || !addBtn) return;
+
+            function bindRemoveButtons(scope) {
+                var rows = (scope || container).querySelectorAll('.btn-remove-sub');
+                rows.forEach(function (btn) {
+                    btn.onclick = function () {
+                        var row = btn.closest('.sub-row');
+                        if (!row) return;
+                        // অন্তত ১টা row রেখে দিচ্ছি
+                        if (container.querySelectorAll('.sub-row').length === 1) {
+                            row.querySelector('input[name="subname"]').value = "";
+                            return;
+                        }
+                        row.remove();
+                    };
+                });
+            }
+
+            addBtn.addEventListener('click', function () {
+                var row = document.createElement('div');
+                row.className = 'fld1 sub-row';
+                row.innerHTML =
+                    '<input type="text" name="subname" class="ctrl" placeholder="Subcategory name" required />' +
+                    '<button type="button" class="small-btn btn-remove-sub" ' +
+                        'style="background-color:#ef4444;color:#fef2f2;">' +
+                        '<i class="bi bi-x"></i>' +
+                    '</button>';
+                container.appendChild(row);
+                bindRemoveButtons(row);
+            });
+
+            bindRemoveButtons();
+        })();
+    </script>
+}

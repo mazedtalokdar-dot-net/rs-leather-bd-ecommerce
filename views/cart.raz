@@ -1,0 +1,160 @@
+@{
+    var items = Model.items || [];
+    var total = Model.total || 0;
+    Model.title = "Your Cart";
+}
+
+@section nav {
+    Html.partial("_nav", { authenticated: Model.authenticated })
+}
+
+<div class="container">
+    <h1 style="width:97.5%; margin: 5px auto; text-align:center;">Your Cart</h1>
+
+    @if(items.length === 0){
+        <p style="text-align:center; margin-top:1.5rem; color:#6b7280;">
+            Your cart is empty.
+        </p>
+    } else {
+        <table class="tbl">
+            <thead>
+                <tr>
+                    <th style="width:40%;">Product</th>
+                    <th style="width:12%;">Price (৳)</th>
+                    <th style="width:18%;">Quantity</th>
+                    <th style="width:15%;">Total (৳)</th>
+                    <th style="width:15%;">Action</th>
+                </tr>
+            </thead>
+            <tbody id="cart-body">
+            @for (var i = 0; i < items.length; i++) {
+                var it = items[i];
+                <tr data-pid="@it.productId">
+                    <td>
+                        <div style="display:flex;align-items:center;gap:0.75rem;">
+                            @if(it.imageUrl && it.imageUrl !== ""){
+                                <img src="@it.imageUrl"
+                                     style="width:60px;height:60px;border-radius:12px;object-fit:cover;" />
+                            }
+                            <span style="font-weight:500;">@it.name</span>
+                        </div>
+                    </td>
+                    <td class="td-price">@it.price</td>
+                    <td>
+                        <div style="display:inline-flex;align-items:center;border-radius:999px;border:1px solid #e5e7eb;overflow:hidden;">
+                            <button type="button"
+                                    class="qty-btn btn-dec"
+                                    style="width:32px;height:32px;border:none;background:#f9fafb;cursor:pointer;">
+                                -
+                            </button>
+                            <input type="text"
+                                   class="qty-input"
+                                   value="@it.qty"
+                                   style="width:42px;height:32px;border:none;text-align:center;outline:none;font-size:0.9rem;" />
+                            <button type="button"
+                                    class="qty-btn btn-inc"
+                                    style="width:32px;height:32px;border:none;background:#f9fafb;cursor:pointer;">
+                                +
+                            </button>
+                        </div>
+                    </td>
+                    <td class="td-line-total">@(it.price * it.qty)</td>
+                    <td>
+                        <button type="button" class="small-btn btn-remove"
+                                style="background:#ef4444;color:#fef2f2;">
+                            Remove
+                        </button>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+
+        <div style="margin-top:1.5rem;display:flex;justify-content:flex-end;">
+            <div style="min-width:260px;padding:1rem 1.2rem;border-radius:1rem;background:#111827;color:#f9fafb;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-size:0.9rem;color:#d1d5db;">Grand Total</span>
+                    <span id="grand-total" style="font-size:1.3rem;font-weight:600;">
+                        @total
+                    </span>
+                </div>
+                <div style="margin-top:0.8rem;text-align:right;">
+                    <a href="/checkout" class="btn primary">Proceed to Checkout</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="/scripts/jquery.js"></script>
+    <script>
+        (function () {
+            function recalcGrandTotal() {
+                var g = 0;
+                document.querySelectorAll("#cart-body tr").forEach(function (row) {
+                    var lineCell = row.querySelector(".td-line-total");
+                    if (!lineCell) return;
+                    var v = Number(lineCell.textContent.trim() || "0");
+                    if (!isNaN(v)) g += v;
+                });
+                document.getElementById("grand-total").textContent = g;
+            }
+
+            $(document).ready(function () {
+                $("#cart-body").on("click", ".qty-btn", function () {
+                    var row = $(this).closest("tr");
+                    var pid = row.data("pid");
+                    var input = row.find(".qty-input");
+                    var current = parseInt(input.val() || "0", 10);
+
+                    if ($(this).hasClass("btn-inc")) {
+                        current++;
+                    } else if ($(this).hasClass("btn-dec")) {
+                        current--;
+                    }
+                    if (current < 0) current = 0;
+                    input.val(current);
+
+                    $.ajax({
+                        url: "/cart/update",
+                        method: "POST",
+                        dataType: "json",
+                        data: { productId: pid, qty: current },
+                        success: function (r) {
+                            if (r && r.ok) {
+                                // সার্ভারের total থেকে grand total আপডেট
+                                $("#grand-total").text(r.total);
+
+                                if (current === 0) {
+                                    row.remove();
+                                } else {
+                                    var price = Number(row.find(".td-price").text().trim() || "0");
+                                    row.find(".td-line-total").text(price * current);
+                                }
+                            }
+                        },
+                    });
+                });
+
+                $("#cart-body").on("click", ".btn-remove", function () {
+                    var row = $(this).closest("tr");
+                    var pid = row.data("pid");
+
+                    $.ajax({
+                        url: "/cart/update",
+                        method: "POST",
+                        dataType: "json",
+                        data: { productId: pid, qty: 0 },
+                        success: function (r) {
+                            if (r && r.ok) {
+                                row.remove();
+                                $("#grand-total").text(r.total);
+                            }
+                        },
+                    });
+                });
+            });
+        })();
+    </script>
+}

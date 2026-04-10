@@ -1,0 +1,6 @@
+_id,categoryname,subcategories[0].name,subcategories[1].name,subcategories[2].name,subcategories[3].name,subcategories[4].name,createdAt,updatedAt,__v
+692cb54f53be935cf0caeb48,Loafer,Half Loafer,,,,,2025-11-30T21:21:19.891Z,2025-11-30T21:21:19.891Z,0
+692cb58853be935cf0caeb4d,Casual,High Quality Casual,,,,,2025-11-30T21:22:16.654Z,2025-11-30T21:22:16.654Z,0
+692d2cc81d43bd37da95935d,Sacchi,Half Sacchi,Full Sacchi,Rough Usable Sacchi,,,2025-12-01T05:51:04.899Z,2025-12-01T05:51:04.899Z,0
+692d2e7c1d43bd37da959368,Formal Shoes,Oxford with Lace,Oxford without Lace,Derby,Wholecut,,2025-12-01T05:58:20.758Z,2025-12-01T05:58:20.758Z,0
+692d31ba1d43bd37da959372,Sandal,Classic Sandal For Regular Use,Tracking And Hiking Sandal,Daily Use Sandal,Slim and Light Sandal,Casual Sandal,2025-12-01T06:12:10.052Z,2025-12-01T06:12:10.052Z,0

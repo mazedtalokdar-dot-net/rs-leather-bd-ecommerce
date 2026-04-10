@@ -1,0 +1,71 @@
+@{
+    
+    var orders = Model.orders || [];
+    Model.title = "Orders";
+}
+
+@section nav {
+    Html.partial("_nav", { authenticated: Model.authenticated })
+}
+
+<div class="container">
+    <h1 style="width:97.5%; margin: 5px auto;text-align:center">Orders</h1>
+
+    <table class="tbl">
+        <thead>
+            <tr>
+                <th style="width:140px;">Order ID</th>
+                <th>Customer</th>
+                <th>Address</th>
+                <th style="width:120px;">Phone</th>
+                <th style="width:110px;">Total (৳)</th>
+                <th style="width:110px;">Status</th>
+                <th style="width:170px;">Change Status</th>
+            </tr>
+        </thead>
+        <tbody>
+        @if(orders.length === 0){
+            <tr>
+                <td colspan="7" style="padding:1rem;font-size:0.9rem;color:#6b7280;">
+                    No orders found.
+                </td>
+            </tr>
+        }
+        @for (var i = 0; i < orders.length; i++) {
+            var o = orders[i];
+            <tr>
+                <td>@o._id</td>
+                <td>@(o.shipping && o.shipping.name ? o.shipping.name : "")</td>
+                <td>
+                    @(o.shipping && o.shipping.address ? o.shipping.address : "")
+                </td>
+                <td>
+                    @(o.shipping && o.shipping.phone ? o.shipping.phone : "")
+                </td>
+                <td>@(o.total || 0)</td>
+                <td>@(o.status || "pending")</td>
+                <td>
+                    <form method="post" action="/order-status/@o._id" style="display:flex;gap:0.4rem;align-items:center;">
+                        <select name="status" class="ctrl-select" style="min-width:110px;">
+                            @{
+                                var st = o.status || "pending";
+                            }
+                            <option value="pending" @(st === "pending" ? "selected" : "")>Pending</option>
+                            <option value="processing" @(st === "processing" ? "selected" : "")>Processing</option>
+                            <option value="delivered" @(st === "delivered" ? "selected" : "")>Delivered</option>
+                            <option value="cancelled" @(st === "cancelled" ? "selected" : "")>Cancelled</option>
+                            <option value="cancel_requested" @(st === "cancel_requested" ? "selected" : "")>
+                                Cancel Requested
+                            </option>
+                        </select>
+                        <button type="submit" class="small-btn"
+                                style="background-color:#22c55e;color:#052e16;">
+                            Update
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,157 @@
+<nav class="nav" style="background-color: rgba(158, 221, 85, 1); color: white;>
+  <div class="nav-inner" style="display:flex;align-items:center;justify-content:space-between;gap:1.5rem;width:100%;">
+
+    <!-- Brand Name -->
+    <span class="brand">Rs Leather Bd<sup>Nexo</sup></span>
+
+    <!-- Search Bar -->
+    <form class="nav-search" method="get" action="/search"
+          style="display:flex;align-items:center;gap:0.4rem;flex:0 0 auto;">
+      <input type="text"
+             name="q"
+             class="ctrl"
+             placeholder="Search leather shoes..."
+             style="max-width:260px;height:34px;font-size:0.85rem;padding-block:0.3rem;" />
+      <button type="submit"
+              class="small-btn"
+              style="min-width:auto;padding-inline:0.7rem;">
+        <i class="bi bi-search"></i>
+      </button>
+    </form>
+
+    <!-- Main Nav Links -->
+    <ul id="main-nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/cart"><i class="bi bi-cart"></i> Cart</a></li>
+
+      @if(Model.authenticated){
+          <!-- এখানে JS দিয়ে প্রয়োজন হলে My Orders inject হবে -->
+          <li id="my-orders-slot" style="display:none;"></li>
+          <li><a href="/logout">Logout</a></li>
+      }
+      else
+      {
+          <li class="nav-login">
+            <button type="button" class="btn login-toggle">
+              <i class="bi bi-person"></i>&nbsp;Login
+              <i class="bi bi-chevron-down" style="font-size:0.75rem;margin-left:0.25rem;"></i>
+            </button>
+            <div class="login-dropdown">
+              <a href="/login" class="login-option">User Login</a>
+              <a href="/admin-login"
+                 target="_blank"
+                 rel="noopener"
+                 class="login-option">Admin Login</a>
+            </div>
+          </li>
+
+          <li><a href="/register">Register</a></li>
+      }
+    </ul>
+  </div>
+
+  <style>
+    .nav-login {
+      position: relative;
+    }
+
+    .login-toggle {
+      padding-inline: 0.9rem;
+    }
+
+    .login-dropdown {
+      position: absolute;
+      right: 0;
+      top: 120%;
+      display: none;
+      flex-direction: column;
+      gap: 0.35rem;
+      padding: 0.5rem;
+      background: rgba(17, 24, 39, 0.98);
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.7);
+      min-width: 150px;
+      z-index: 60;
+    }
+
+    .login-dropdown.show {
+      display: flex;
+    }
+
+    .login-option {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.4rem 0.75rem;
+      border-radius: 999px;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #f9fafb;
+      background: transparent;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      transition: background-color 160ms ease-out, color 160ms ease-out,
+                  border-color 160ms ease-out, transform 120ms ease-out;
+    }
+
+    .login-option:hover {
+      background: linear-gradient(90deg, rgba(212, 163, 115, 0.5), rgba(44, 24, 16, 0.95));
+      border-color: rgba(212, 163, 115, 0.9);
+      color: #fefce8;
+      transform: translateY(-1px);
+    }
+     @@media (max-width: 720px) {
+  .nav-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .nav-search {
+    width: 100%;
+  }
+
+  .nav-search .ctrl {
+    max-width: 100% !important;
+    flex: 1;
+  }
+  .ul li a:hover{
+    color: #3280c9;
+  }
+  </style>
+
+  <script>
+    (function () {
+      const toggle = document.querySelector('.login-toggle');
+      const dropdown = document.querySelector('.login-dropdown');
+
+      if (toggle && dropdown) {
+        toggle.addEventListener('click', function (e) {
+          e.stopPropagation();
+          dropdown.classList.toggle('show');
+        });
+
+        document.addEventListener('click', function () {
+          dropdown.classList.remove('show');
+        });
+      }
+
+      // শুধুমাত্র authenticated user-এর জন্য My Orders দেখাবে
+      const slot = document.getElementById('my-orders-slot');
+      if (slot) {
+        fetch('/nav-state')
+          .then(function (res) { return res.json(); })
+          .then(function (data) {
+            if (data && data.authenticated && data.hasOrders) {
+              slot.style.display = '';
+              slot.innerHTML = '<a href="/my-orders">My Orders</a>';
+            }
+          })
+          .catch(function (err) {
+            console.error(err);
+          });
+      }
+    })();
+  </script>
+</nav>

@@ -1,0 +1,77 @@
+@{
+    var counts = Model.counts || { p: 0, c: 0, u: 0, o: 0 };
+    var cancelRequestCount = Model.cancelRequestCount || 0;
+    Model.title = "Admin Dashboard";
+}
+
+@section nav {
+    Html.partial("_nav", { authenticated: Model.authenticated })
+}
+
+<div class="container">
+    <h1 style="width:97.5%; margin: 5px auto;text-align:center">Admin Dashboard</h1>
+
+    <div class="box-container">
+        <a href="/products" class="big-box">
+            <div>
+                <span style="font-size:0.8rem;letter-spacing:0.16em;text-transform:uppercase;color:#9ca3af;">
+                    Products
+                </span>
+                <h2 style="font-size:1.8rem;margin-top:0.35rem;">@counts.p</h2>
+            </div>
+            <p style="font-size:0.85rem;color:#9ca3af;">
+                Manage all leather shoes & related products.
+            </p>
+        </a>
+
+        <a href="/categories" class="big-box">
+            <div>
+                <span style="font-size:0.8rem;letter-spacing:0.16em;text-transform:uppercase;color:#9ca3af;">
+                    Categories
+                </span>
+                <h2 style="font-size:1.8rem;margin-top:0.35rem;">@counts.c</h2>
+            </div>
+            <p style="font-size:0.85rem;color:#9ca3af;">
+                Configure product categories & subcategories.
+            </p>
+        </a>
+
+        <a href="/orderlist" class="big-box">
+            <div>
+                <span style="font-size:0.8rem;letter-spacing:0.16em;text-transform:uppercase;color:#9ca3af;">
+                    Orders
+                </span>
+                <h2 style="font-size:1.8rem;margin-top:0.35rem;">@counts.o</h2>
+            </div>
+            <p style="font-size:0.85rem;color:#9ca3af;">
+                Review and update order status.
+            </p>
+        </a>
+
+        <a href="/admin/create-admin" class="big-box">
+            <div>
+                <span style="font-size:0.8rem;letter-spacing:0.16em;text-transform:uppercase;color:#9ca3af;">
+                    Create Admin
+                </span>
+                <h2 style="font-size:1.4rem;margin-top:0.35rem;">New</h2>
+            </div>
+            <p style="font-size:0.85rem;color:#9ca3af;">
+                Register a new admin with name, email and password.
+            </p>
+        </a>
+
+        <a href="/orderlist" class="big-box" style="border:1px solid rgba(245,158,11,0.5);">
+            <div>
+                <span style="font-size:0.8rem;letter-spacing:0.16em;text-transform:uppercase;color:#fcd34d;">
+                    Cancel Requests
+                </span>
+                <h2 style="font-size:1.8rem;margin-top:0.35rem;color:#fff;">
+                    @cancelRequestCount
+                </h2>
+            </div>
+            <p style="font-size:0.85rem;color:#fcd34d;">
+                Orders requested by users for cancellation.
+            </p>
+        </a>
+    </div>
+</div>
